@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/htmx.org@1.9.11" integrity="sha384-0gxUXCCR8yv9FM2b+U3FDbsKthCI66oH5IA9fHppQq9DDMHuMauqq1ZHBpJxQ0J0" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+    <title>Ponderada</title>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-auto bg-light sticky-top">
+                <div class="d-flex flex-sm-column flex-row flex-nowrap bg-light align-items-center sticky-top">
+                    <a href="/" class="d-block p-3 link-dark text-decoration-none" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Icon-only">
+                        <i class="bi-bootstrap fs-2"></i>
+                    </a>
+                    <ul class="nav nav-pills nav-flush flex-sm-column flex-row flex-nowrap mb-auto mx-auto text-center align-items-center">
+                        <li>
+                            <a href="/control" class="nav-link py-3 px-2" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Dashboard">
+                                <i class="bi-speedometer2 fs-2"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/log" class="nav-link py-3 px-2" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Orders">
+                                <i class="bi-table fs-2"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-sm p-3 min-vh-100">
+    <div class="container mt-5">
+        <h2>Controle do Robô</h2>
+        <p id="status-robo" class="mt-4">O robô está pronto para uso.</p>
+        <div class="d-flex justify-content-center flex-wrap">
+            <button type="button" class="btn btn-primary m-2" data-bs-toggle="modal" data-bs-target="#genericModal" hx-post="/home" hx-target="#statusMessage" hx-swap="innerHTML">
+              <i class="bi bi-house-door-fill"></i> Voltar para HOME
+            </button>            
+            <button type="button" class="btn btn-info m-2" data-bs-toggle="modal" data-bs-target="#genericModal" onclick="prepararModal()" hx-get="/actual_position" hx-target="#genericModalBody" hx-trigger hx-swap="innerHTML"="click"><i class="bi bi-geo-alt-fill"></i> Posição Atual</button>
+            <button type="button" class="btn btn-warning m-2" data-bs-toggle="modal" data-bs-target="#genericModal" onclick="configuraModal('Atuador', 'Desligando atuador...')" hx-post="/actuator"><i class="bi bi-power"></i> Desligar/Ligar Atuador</button>
+            <button type="button" class="btn btn-success m-2" data-bs-toggle="modal" data-bs-target="#coordenadasModal"><i class="bi bi-cursor-fill"></i> Mover para certa posição</button>
+        </div>
+    </div>
+
+                      <!-- Modal para Coordenadas -->
+                      <div class="modal fade" id="coordenadasModal" tabindex="-1" role="dialog" aria-labelledby="coordenadasModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="coordenadasModalLabel">Inserir Coordenadas</h5>
+                              <button type="button" class="close" data-bs-dismiss="modal" aria-label="Fechar">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <!-- Adicionado id e method ao formulário -->
+                              <form id="form-coordenadas">
+                                <div class="form-group">
+                                  <label for="coordenada-x">X</label>
+                                  <input type="text" class="form-control" id="coordenada-x" name="x">
+                                </div>
+                                <div class="form-group">
+                                  <label for="coordenada-y">Y</label>
+                                  <input type="text" class="form-control" id="coordenada-y" name="y">
+                                </div>
+                                <div class="form-group">
+                                  <label for="coordenada-z">Z</label>
+                                  <input type="text" class="form-control" id="coordenada-z" name="z">
+                                </div>
+                                <div class="form-group">
+                                  <label for="rotacao-r">Rotação R</label>
+                                  <input type="text" class="form-control" id="coordenada-r" name="r">
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                  <!-- Ajustes no botão para enviar o formulário via HTMX -->
+                                  <button type="submit" class="btn btn-primary" id="submit-coordenadas" hx-post="/move_robot">Mover Robô</button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                    
+
+    <!-- Modal Genérico -->
+    <!-- Botão para abrir o modal e enviar requisição HTMX -->
+
+
+<!-- Modal Structure -->
+<div class="modal fade" id="genericModal" tabindex="-1" aria-labelledby="genericModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="genericModalTitle">Status da Operação</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="genericModalBody">
+              <!-- Elemento onde a resposta HTMX será exibida -->
+              <div id="statusMessage">Aguardando operação...</div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    
+      
+      </script>
+</body>
+</html>
