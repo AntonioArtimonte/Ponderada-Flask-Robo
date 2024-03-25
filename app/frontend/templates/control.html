@@ -33,7 +33,7 @@
             <div class="col-sm p-3 min-vh-100">
     <div class="container mt-5">
         <h2>Controle do Robô</h2>
-        <p id="status-robo" class="mt-4">O robô está pronto para uso.</p>
+        <p id="status-robo" hx-get="/is_connected" hx-trigger="every 15s" hx-target="#status-robo" hx-swap="outerHMTL" class="mt-4"></p>
         <div class="d-flex justify-content-center flex-wrap">
             <button type="button" class="btn btn-primary m-2" data-bs-toggle="modal" data-bs-target="#genericModal" hx-post="/home" hx-target="#statusMessage" hx-swap="innerHTML">
               <i class="bi bi-house-door-fill"></i> Voltar para HOME

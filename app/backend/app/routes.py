@@ -22,7 +22,7 @@ class InteliArm(pydobot.Dobot):
         
 
 
-def encontrar_porta_dobot(porta_desejada='/dev/cu.usbmodem14301'):
+def encontrar_porta_dobot(porta_desejada):
     portas = serial.tools.list_ports.comports()
     for porta in portas:
         if porta.device == porta_desejada:
@@ -30,6 +30,14 @@ def encontrar_porta_dobot(porta_desejada='/dev/cu.usbmodem14301'):
     return None
 
 
+def criar_robot():
+    porta_selecionada = encontrar_porta_dobot('/dev/cu.usbmodem14301')
+    if porta_selecionada is not None:
+        return InteliArm(port=porta_selecionada, verbose=False)
+    else:
+        return None
+
+robot = criar_robot()
     
 
 
@@ -57,48 +65,55 @@ def log():
     return render_template('log.html', logs=all_registry)
 
 
+# Feito
 @main.route('/is_connected', methods=['GET'])
 def is_connected():
-    pass
+    global robot
+    robot = criar_robot()
+    
+    if robot is not None:
+        return "<div class='alert alert-success justify-content-center text-center'> Robô conectado com sucesso. </div>"
+    else:
+        return "<div class='alert alert-danger justify-content-center text-center'> Robô não encontrado. </div>"
 
 # Feito
 @main.route('/home', methods=['GET', 'POST'])
 def home():
-    porta_selecionada = encontrar_porta_dobot()
-
-    if porta_selecionada is not None:
-        robot = InteliArm(port=porta_selecionada, verbose=False)
-        print(f'Dobot conectado com sucesso na porta {porta_selecionada}')
+    global robot
+    robot = criar_robot()
+    if robot is not None:
+        print(f'Dobot conectado com sucesso')
     else:
         print('Porta do Dobot não encontrada.')
     
-    position = (240, 0, 150, 0)
+    position_home = (240, 0, 150, 0)
     
     try:
         robot.movej_to(240,0,150,0, wait=True)
         
         current_position = robot.pose()
         
-        if check_movement(position, current_position):
+        if check_movement(position_home, current_position):
             work_status = "Sucesso"
         else:
             work_status = "Falha"
             
-        db.insert_position(*position, work_status)
+        db.insert_position(*position_home, work_status)
         
         return jsonify({'success': True, 'message': 'Position inserted successfully.', 'work': work_status})
 
     except Exception as e:
                 return jsonify({'success': False, 'message': str(e)}), 500
 
-# Feito            
+# Feito     
+       
 @main.route('/actual_position', methods=['GET'])
 def actual_position():
-    porta_selecionada = encontrar_porta_dobot()
+    global robot 
+    robot = criar_robot()
 
-    if porta_selecionada is not None:
-        robot = InteliArm(port=porta_selecionada, verbose=False)
-        print(f'Dobot conectado com sucesso na porta {porta_selecionada}')
+    if robot is not None:
+        print(f'Dobot conectado com sucesso')
     else:
         print('Porta do Dobot não encontrada.')
         
@@ -113,14 +128,14 @@ def actual_position():
     return jsonify(position_data)
 
 
-
+# Falta aplicar mudança estado atuador
 @main.route('/actuactor', methods=['GET', 'POST'])
-def actuactor():
-    porta_selecionada = encontrar_porta_dobot()
+def actuactor():   
+    global robot
+    robot = criar_robot()
 
-    if porta_selecionada is not None:
-        robot = InteliArm(port=porta_selecionada, verbose=False)
-        print(f'Dobot conectado com sucesso na porta {porta_selecionada}')
+    if robot is not None:
+        print(f'Dobot conectado com sucesso')
         robot.suck(False)
         return jsonify({'success': True, 'message': 'Actuactor inserted successfully.'})
     else:
@@ -131,11 +146,11 @@ def actuactor():
 # Feito
 @main.route('/move_robot', methods=['GET', 'POST'])
 def move_robot():
-    porta_selecionada = encontrar_porta_dobot()
-
-    if porta_selecionada is not None:
-        robot = InteliArm(port=porta_selecionada, verbose=False)
-        print(f'Dobot conectado com sucesso na porta {porta_selecionada}')
+    global robot
+    robot = criar_robot()
+    
+    if robot is not None:
+        print(f'Dobot conectado com sucesso')
         if request.method == 'POST':
             content = request.form # Usa get_json() para pegar o corpo JSON da requisição
             
