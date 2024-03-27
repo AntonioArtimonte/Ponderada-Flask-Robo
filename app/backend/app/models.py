@@ -1,6 +1,6 @@
 # db_manager.py
 
-from tinydb import TinyDB, Query
+from tinydb import TinyDB, Query, where
 from datetime import datetime
 
 class RobotPositionDB:

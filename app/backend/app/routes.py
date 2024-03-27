@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, make_response
 from .models import RobotPositionDB
 import pydobot
 import serial.tools.list_ports
@@ -6,7 +6,7 @@ import serial.tools.list_ports
 
 # Database code
 
-db = RobotPositionDB('app/backend/database/db.json')
+db = RobotPositionDB('database/db.json')
 
 # Robo code
 
@@ -38,6 +38,8 @@ def criar_robot():
         return None
 
 robot = criar_robot()
+
+actuactor_is_on = False
     
 
 
@@ -63,6 +65,14 @@ def control():
 def log():
     all_registry = db.get_all_data()
     return render_template('log.html', logs=all_registry)
+    
+@main.route('/delete_log/<int:log_id>', methods=['DELETE'])
+def delete_log(log_id):
+    try:
+        db.remove(doc_ids == log_id)
+        return jsonify({'success': True, 'message': 'Log deleted successfully.'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 
 # Feito
@@ -130,17 +140,27 @@ def actual_position():
 
 # Falta aplicar mudança estado atuador
 @main.route('/actuactor', methods=['GET', 'POST'])
-def actuactor():   
-    global robot
+def actuator():
+    global actuactor_is_on, robot
     robot = criar_robot()
 
     if robot is not None:
-        print(f'Dobot conectado com sucesso')
-        robot.suck(False)
-        return jsonify({'success': True, 'message': 'Actuactor inserted successfully.'})
+        if request.method == 'POST':
+            # Alterna o estado do atuador
+            actuactor_is_on = not actuactor_is_on
+            robot.suck(actuactor_is_on)
+
+        # Retorna o estado atual do atuador junto com a resposta
+            if actuactor_is_on:
+                html_response = "<div>O atuador está ligado.</div>"
+            else:
+                html_response = "<div>O atuador está desligado.</div>"
+                
+            return make_response(html_response)
     else:
         print('Porta do Dobot não encontrada.')
         return jsonify({'success': False, 'message': 'Porta do Dobot não encontrada.'}), 404
+
 
 
 # Feito
