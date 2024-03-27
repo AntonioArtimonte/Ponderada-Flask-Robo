@@ -35,12 +35,17 @@
         <h2>Controle do Robô</h2>
         <p id="status-robo" hx-get="/is_connected" hx-trigger="every 15s" hx-target="#status-robo" hx-swap="outerHMTL" class="mt-4"></p>
         <div class="d-flex justify-content-center flex-wrap">
-            <button type="button" class="btn btn-primary m-2" data-bs-toggle="modal" data-bs-target="#genericModal" hx-post="/home" hx-target="#statusMessage" hx-swap="innerHTML">
-              <i class="bi bi-house-door-fill"></i> Voltar para HOME
-            </button>            
-            <button type="button" class="btn btn-info m-2" data-bs-toggle="modal" data-bs-target="#genericModal" onclick="prepararModal()" hx-get="/actual_position" hx-target="#genericModalBody" hx-trigger hx-swap="innerHTML"="click"><i class="bi bi-geo-alt-fill"></i> Posição Atual</button>
-            <button type="button" class="btn btn-warning m-2" data-bs-toggle="modal" data-bs-target="#genericModal" onclick="configuraModal('Atuador', 'Desligando atuador...')" hx-post="/actuator"><i class="bi bi-power"></i> Desligar/Ligar Atuador</button>
-            <button type="button" class="btn btn-success m-2" data-bs-toggle="modal" data-bs-target="#coordenadasModal"><i class="bi bi-cursor-fill"></i> Mover para certa posição</button>
+          <button type="button" class="btn btn-primary m-2" data-bs-toggle="modal" data-bs-target="#homeModal" hx-get="/home" hx-target="#invisible">
+            <i class="bi bi-house-door-fill"></i> Voltar para HOME
+          </button>               
+            <button type="button" class="btn btn-info m-2" data-bs-toggle="modal" data-bs-target="#genericModal" hx-get="/actual_position" hx-target="#genericModalBody" hx-trigger="click">
+              <i class="bi bi-geo-alt-fill"></i> Posição Atual
+            </button>
+            <button type="button" class="btn btn-warning m-2" data-bs-toggle="modal" data-bs-target="#actuatorModal">
+              <i class="bi bi-power"></i> <span id="actuatorButtonText">Desligar/Ligar Atuador</span>
+            </button>
+          </button>
+                        <button type="button" class="btn btn-success m-2" data-bs-toggle="modal" data-bs-target="#coordenadasModal"><i class="bi bi-cursor-fill"></i> Mover para certa posição</button>
         </div>
     </div>
 
@@ -76,7 +81,7 @@
                                 <div class="modal-footer">
                                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                                   <!-- Ajustes no botão para enviar o formulário via HTMX -->
-                                  <button type="submit" class="btn btn-primary" id="submit-coordenadas" hx-post="/move_robot">Mover Robô</button>
+                                  <button type="submit" class="btn btn-primary" id="submit-coordenadas" hx-post="/move_robot" hx-target="#invisible">Mover Robô</button>
                                 </div>
                               </form>
                             </div>
@@ -86,21 +91,59 @@
                       
                     
 
-    <!-- Modal Genérico -->
-    <!-- Botão para abrir o modal e enviar requisição HTMX -->
+    <!-- Modal atuador -->
+    <div class="modal fade" id="actuatorModal" tabindex="-1" aria-labelledby="actuatorModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="actuatorModalLabel">Controlar Atuador</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body" id="actuatorModalBody">
+                  <p>O atuador está atualmente <span id="actuatorStatus">desligado</span>.</p>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <!-- Botão para alternar o estado do atuador -->
+                  <button type="button" class="btn btn-primary" hx-post="/actuactor" hx-target="#actuatorModalBody" hx-swap="innerHTML">
+                      Alternar Estado
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
 
+<!-- Modal posição atual -->
 
-<!-- Modal Structure -->
 <div class="modal fade" id="genericModal" tabindex="-1" aria-labelledby="genericModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="genericModalLabel">Posição Atual do Robô</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="genericModalBody">
+        <!-- Os dados da posição serão inseridos aqui -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal para Voltar para HOME -->
+<div class="modal fade" id="homeModal" tabindex="-1" aria-labelledby="homeModalLabel" aria-hidden="true">
   <div class="modal-dialog">
       <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title" id="genericModalTitle">Status da Operação</h5>
+              <h5 class="modal-title" id="homeModalLabel">Ação Executada</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body" id="genericModalBody">
-              <!-- Elemento onde a resposta HTMX será exibida -->
-              <div id="statusMessage">Aguardando operação...</div>
+          <div class="modal-body" id="homeModalBody">
+              <p>Voltando para posição Home</p>
           </div>
           <div class="modal-footer">
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -109,12 +152,25 @@
   </div>
 </div>
 
+<div id="invisible" style="display:none;"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
     
+    document.body.addEventListener('htmx:afterOnLoad', function(event) {
+    if (event.detail.path === '/actual_position') {
+        var response = JSON.parse(event.detail.xhr.responseText);
+        var content;
+        if (response.error) {
+            content = `<p>${response.error}</p>`;
+        } else {
+            content = `<p>X: ${response.x}, Y: ${response.y}, Z: ${response.z}, R: ${response.r}</p>`;
+        }
+        document.getElementById('genericModalBody').innerHTML = content;
+    }
+});
       
-      </script>
+    </script>
 </body>
 </html>

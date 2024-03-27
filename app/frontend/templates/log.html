@@ -43,18 +43,18 @@
             <th scope="col">Data e Hora</th>
             <th scope="col">Ação</th>
             <th scope="col">Resultado</th>
+            <th scope="col"></th> <!-- Nova coluna para o ícone de lixeira -->
           </tr>
         </thead>
         <tbody>
           {% for log in logs %}
           <tr>
-            <th scope="row">{{log.doc_id}}</th>
-            <td>{{log.date_inserted}}</td>
-            <td>X: {{log.x}}, Y: {{log.y}}, Z: {{log.z}}, R: {{log.r}}</td>
-            <td>{{log.work}}</td>
+            <th scope="row">{{ log.doc_id }}</th>
+            <td>{{ log.date_inserted }}</td>
+            <td>X: {{ log.x }}, Y: {{ log.y }}, Z: {{ log.z }}, R: {{ log.r }}</td>
+            <td>{{ log.work }}</td>
           </tr>
-            {% endfor %}
-
+          {% endfor %}
         </tbody>
       </table>
     </div>
@@ -65,5 +65,26 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+      function deleteRow(logId) {
+        if (confirm('Tem certeza que deseja excluir este registro?')) {
+          fetch('/delete_log/' + logId, {
+            method: 'DELETE', // Ou 'DELETE', conforme sua preferência e configuração no backend
+            headers: {
+              'Content-Type': 'application/json',
+              // Inclua tokens CSRF se necessário
+            },
+            // Corpo da requisição para métodos POST; omita para DELETE
+            // body: JSON.stringify({ id: logId }) 
+          }).then(response => {
+            if (response.ok) {
+              window.location.reload(); // Recarrega a página para atualizar a tabela
+            } else {
+              alert('Não foi possível excluir o registro.');
+            }
+          });
+        }
+      }
+      </script>
 </body>
 </html>
