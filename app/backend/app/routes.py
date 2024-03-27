@@ -50,23 +50,23 @@ def check_movement(desired, actual, tolerance=3):
 # Flask code
 main = Blueprint('main', __name__)
 
-# Feito
+
 @main.route('/', methods=['GET'])
 def index():
     return render_template('telainicial.html')
 
-# Feito
+
 @main.route('/control', methods=['GET'])
 def control():
     return render_template('control.html')
 
-# Feito
+
 @main.route('/log', methods=['GET'])
 def log():
     all_registry = db.get_all_data()
     return render_template('log.html', logs=all_registry)
 
-# Feito
+
 @main.route('/is_connected', methods=['GET'])
 def is_connected():
     global robot
@@ -77,7 +77,7 @@ def is_connected():
     else:
         return "<div class='alert alert-danger justify-content-center text-center'> Robô não encontrado. </div>"
 
-# Feito
+
 @main.route('/home', methods=['GET', 'POST'])
 def home():
     global robot
@@ -87,13 +87,14 @@ def home():
     else:
         print('Porta do Dobot não encontrada.')
     
-    position_home = (240, 0, 150, 0)
+    position_home = (240, 0, 150, 0) # Posição de home
     
     try:
         robot.movej_to(240,0,150,0, wait=True)
         
         current_position = robot.pose()
         
+        # Checar se o movimento foi sucesso ou não
         if check_movement(position_home, current_position):
             work_status = "Sucesso"
         else:
@@ -106,7 +107,7 @@ def home():
     except Exception as e:
                 return jsonify({'success': False, 'message': str(e)}), 500
 
-# Feito     
+
        
 @main.route('/actual_position', methods=['GET'])
 def actual_position():
@@ -129,7 +130,7 @@ def actual_position():
     return jsonify(position_data)
 
 
-# Falta aplicar mudança estado atuador
+
 @main.route('/actuactor', methods=['GET', 'POST'])
 def actuator():
     global actuactor_is_on, robot
@@ -137,11 +138,11 @@ def actuator():
 
     if robot is not None:
         if request.method == 'POST':
-            # Alterna o estado do atuador
+
             actuactor_is_on = not actuactor_is_on
             robot.suck(actuactor_is_on)
 
-        # Retorna o estado atual do atuador junto com a resposta
+
             if actuactor_is_on:
                 html_response = "<div>O atuador está ligado.</div>"
             else:
@@ -154,7 +155,7 @@ def actuator():
 
 
 
-# Feito
+
 @main.route('/move_robot', methods=['GET', 'POST'])
 def move_robot():
     global robot
@@ -163,17 +164,17 @@ def move_robot():
     if robot is not None:
         print(f'Dobot conectado com sucesso')
         if request.method == 'POST':
-            content = request.form # Usa get_json() para pegar o corpo JSON da requisição
+            content = request.form 
             
-            # Checa se todas as chaves necessárias estão no JSON
+
             if not all(key in content for key in ('x', 'y', 'z', 'r')):
                 return jsonify({'success': False, 'message': 'Missing one or more required fields: x, y, z, r.'}), 400
             
-            # Converte os valores para inteiros
+
             try:
                 position = (int(content['x']), int(content['y']), int(content['z']), int(content['r']))
             except ValueError:
-                # Retorna um erro se a conversão de algum dos valores falhar
+
                 return jsonify({'success': False, 'message': 'All coordinates must be integer values.'}), 400
 
             try:
@@ -184,7 +185,7 @@ def move_robot():
                 
                 db.insert_position(*position, work_status)
                 return jsonify({'success': True, 'message': 'Position inserted successfully.', 'work': work_status})
-            except Exception as e:  # Captura qualquer exceção para evitar falhas no servidor
+            except Exception as e:
                 return jsonify({'success': False, 'message': str(e)}), 500
         else:
             
