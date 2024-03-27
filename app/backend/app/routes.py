@@ -65,15 +65,6 @@ def control():
 def log():
     all_registry = db.get_all_data()
     return render_template('log.html', logs=all_registry)
-    
-@main.route('/delete_log/<int:log_id>', methods=['DELETE'])
-def delete_log(log_id):
-    try:
-        db.remove(doc_ids == log_id)
-        return jsonify({'success': True, 'message': 'Log deleted successfully.'})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
 
 # Feito
 @main.route('/is_connected', methods=['GET'])
