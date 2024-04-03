@@ -60,7 +60,6 @@
                               </button>
                             </div>
                             <div class="modal-body">
-                              <!-- Adicionado id e method ao formulário -->
                               <form id="form-coordenadas">
                                 <div class="form-group">
                                   <label for="coordenada-x">X</label>
@@ -80,7 +79,6 @@
                                 </div>
                                 <div class="modal-footer">
                                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                  <!-- Ajustes no botão para enviar o formulário via HTMX -->
                                   <button type="submit" class="btn btn-primary" id="submit-coordenadas" hx-post="/move_robot" hx-target="#invisible">Mover Robô</button>
                                 </div>
                               </form>
@@ -124,7 +122,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body" id="genericModalBody">
-        <!-- Os dados da posição serão inseridos aqui -->
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>

@@ -1,5 +1,3 @@
-# db_manager.py
-
 from tinydb import TinyDB, Query, where
 from datetime import datetime
 

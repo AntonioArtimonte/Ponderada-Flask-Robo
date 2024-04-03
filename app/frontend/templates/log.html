@@ -31,7 +31,7 @@
                 </div>
             </div>
             <div class="col-sm p-3 min-vh-100">
-               <!-- Conteúdo Principal -->
+
 <div class="container mt-5">
     <h2>Logs de Atividades do Robô</h2>
     <p>Aqui estão listadas todas as ações realizadas pelo robô:</p>
@@ -64,26 +64,5 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script>
-      function deleteRow(logId) {
-        if (confirm('Tem certeza que deseja excluir este registro?')) {
-          fetch('/delete_log/' + logId, {
-            method: 'DELETE', // Ou 'DELETE', conforme sua preferência e configuração no backend
-            headers: {
-              'Content-Type': 'application/json',
-              // Inclua tokens CSRF se necessário
-            },
-            // Corpo da requisição para métodos POST; omita para DELETE
-            // body: JSON.stringify({ id: logId }) 
-          }).then(response => {
-            if (response.ok) {
-              window.location.reload(); // Recarrega a página para atualizar a tabela
-            } else {
-              alert('Não foi possível excluir o registro.');
-            }
-          });
-        }
-      }
-      </script>
 </body>
 </html>
